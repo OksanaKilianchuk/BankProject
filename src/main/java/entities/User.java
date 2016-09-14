@@ -4,23 +4,23 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name="user")
-@NamedQuery(name="User.findUser", query = "SELECT u FROM User u WHERE u.login= :login and u.pass= :pass")
+@Table(name = "user")
+@NamedQuery(name = "User.findUser", query = "SELECT u FROM User u WHERE u.login= :login and u.pass= :pass")
 public class User {
 
     @Id
     @GeneratedValue
     private long id;
 
-    @Column(name="login", nullable = false)
+    @Column(name = "login", nullable = false)
     private String login;
     private String pass;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Account> accounts;
 
-    @OneToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="person")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "person")
     private Person person;
 
     public long getId() {

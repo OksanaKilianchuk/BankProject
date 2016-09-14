@@ -26,7 +26,6 @@ public class Main {
 
     public static void main(String... args) {
         try (Scanner sc = new Scanner(System.in)) {
-            while (true) {
                 if (autorization(sc)) {
                     System.out.println("Welcome " + user.getLogin() + "!");
 
@@ -55,11 +54,10 @@ public class Main {
                             case "total funds":
                                 totalFunds(sc);
                                 break;
-                            case "transactions":
+                            case "all transactions":
                                 service.printAllTransaction(user);
                                 break;
                             case "log out":
-                                logOut();
                                 break;
 
                             default:
@@ -71,8 +69,9 @@ public class Main {
                 } else {
                     System.out.println("Login or password is incorrect!");
                 }
-            }
+            logOut();
         }
+
     }
 
     static boolean autorization(Scanner sc) {

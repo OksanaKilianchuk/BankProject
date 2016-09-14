@@ -3,20 +3,20 @@ package entities;
 import javax.persistence.*;
 
 @Entity
-@Table(name="rates")
-@NamedQuery(name="ExchangeRate.findPair", query = "SELECT r FROM ExchangeRate r WHERE r.currencyFrom= :currencyFrom and r.currencyTo= :currencyTo")
+@Table(name = "rates")
+@NamedQuery(name = "ExchangeRate.findPair", query = "SELECT r FROM ExchangeRate r WHERE r.currencyFrom= :currencyFrom and r.currencyTo= :currencyTo")
 public class ExchangeRate {
     @Id
     @GeneratedValue
     private long id;
 
-    @Column(name="rate",nullable = false)
+    @Column(name = "rate")
     private Double rate;
 
-    @Column(name="from",nullable = false)
+    @Column(name = "rate_from")
     private String currencyFrom;
 
-    @Column(name="to",nullable = false)
+    @Column(name = "rate_to")
     private String currencyTo;
 
     public long getId() {

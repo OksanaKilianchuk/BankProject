@@ -11,7 +11,7 @@ import java.time.LocalDate;
 /**
  * Created by uzer on 13.09.2016.
  */
-public class TransactionDao implements ITransactionDAO{
+public class TransactionDao implements ITransactionDAO {
     public void createTransaction(EntityManager em, Account accFrom, Account accTo, Double sum) {
         em.getTransaction().begin();
         try {
@@ -24,6 +24,7 @@ public class TransactionDao implements ITransactionDAO{
             em.persist(transaction);
             em.getTransaction().commit();
         } catch (Exception e) {
+            System.out.println(e);
             em.getTransaction().rollback();
         }
     }

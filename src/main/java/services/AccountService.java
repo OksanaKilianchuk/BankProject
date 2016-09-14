@@ -28,13 +28,10 @@ public class AccountService {
     IUserDao userDao = new UserDao();
     IAccountDao accountDao = new AccountDao();
     IExchangeRateDao rateDao = new ExchangeRateDao();
+    ITransactionDAO transactionDAO = new TransactionDao();
 
 
     public boolean transferMoney(long numberFrom, long numberTo, Double sum) {
-        IAccountDao accountDao = new AccountDao();
-        IExchangeRateDao rateDao = new ExchangeRateDao();
-        ITransactionDAO transactionDAO = new TransactionDao();
-
         em.getTransaction().begin();
         try {
             Account accountFrom = accountDao.findByNumber(em, numberFrom);
@@ -42,17 +39,19 @@ public class AccountService {
             if (!accountFrom.getCurrency().equals(accountTo.getCurrency())) {
                 sum = rateDao.convertMoney(em, sum, accountFrom.getCurrency(), accountTo.getCurrency());
             }
-            accountFrom.setSum(accountFrom.getSum() - sum);
-            accountTo.setSum(accountTo.getSum() + sum);
-            em.refresh(accountFrom);
-            em.refresh(accountTo);
-            transactionDAO.createTransaction(em, accountFrom, accountTo, sum);
-            em.getTransaction().commit();
+            if (accountFrom.getSum() >= sum) {
+                accountFrom.setSum(accountFrom.getSum() - sum);
+                accountTo.setSum(accountTo.getSum() + sum);
+                em.merge(accountFrom);
+                em.merge(accountTo);
+                transactionDAO.createTransaction(em, accountFrom, accountTo, sum);
+                em.getTransaction().commit();
+                return true;
+            } else System.out.println("Insufficient funds on account " + accountFrom.getNumber());
         } catch (Exception e) {
             em.getTransaction().rollback();
-            return false;
         }
-        return true;
+        return false;
     }
 
     public boolean createAccount(User user, Currency currency) {
@@ -77,11 +76,11 @@ public class AccountService {
         em.getTransaction().begin();
         try {
             Account account = accountDao.findByNumber(em, number);
-            if (!account.getCurrency().equals(currency)) {
+            if (!account.getCurrency().equals(currency.toString())) {
                 sum = rateDao.convertMoney(em, sum, account.getCurrency(), currency.toString());
             }
             account.setSum(account.getSum() + sum);
-            em.refresh(account);
+            em.merge(account);
         } catch (Exception e) {
             em.getTransaction().rollback();
             return false;
@@ -89,11 +88,11 @@ public class AccountService {
         return true;
     }
 
-    public Double totalFunds(User user, Currency currency){
-        Double totalSum=0.;
-        for (Account account :user.getAccounts()) {
+    public Double totalFunds(User user, Currency currency) {
+        Double totalSum = 0.;
+        for (Account account : user.getAccounts()) {
             Double sum = account.getSum();
-            if (!account.getCurrency().equals(currency))
+            if (!account.getCurrency().equals(currency.toString()))
                 sum = rateDao.convertMoney(em, sum, account.getCurrency(), currency.toString());
             totalSum += sum;
         }
